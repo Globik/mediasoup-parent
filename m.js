@@ -11,7 +11,7 @@ const ls = spawn("./child", [], {
   // fd 4 (channel) : Consumer Channel fd.
   // fd 5 (channel) : Producer PayloadChannel fd.
   // fd 6 (channel) : Consumer PayloadChannel fd.
-  stdio: ["ignore", "pipe", "pipe", "pipe", "pipe"],
+  stdio: ["ignore", "pipe", "pipe", "pipe"],
   windowsHide: true,
 });
 
@@ -19,20 +19,29 @@ ls.stdio[3].on("data", (d) => {
   console.log("Message_3**** =>", d);
 });
 
+/*
 ls.stdio[4].on("data", (d) => {
   console.log("Message_4 **** +>", d)
   ls.stdio[3].write("***************** fucker WRITE 3******\n");
 });
-
+*/
+ls.stdio[3].write('Buffer.from(Uint32Array.of(Buffer.byteLength(*** Hallo Alik!!! ***)).buffer)\n');
+ls.stdio[3].write("***************** fucker WRITE 3******\n");
+ls.stdio[3].write("***************** fucker DIMA 3******\n");
+ls.stdio[3].write("***************** fucker NATALY 3******\n");
+ls.stdio[3].write('A *** Buffer.from(Uint32Array.of(Buffer.byteLength(*** Hallo VADIK!! ***)).buffer)\n');
 ls.stdio[3].on("error", function (l) {
   console.log("erri3", l);
 });
+/*
 ls.stdio[4].on("error", function (l) {
   console.log("erri4", l);
 });
-
+*/
 ls.stdio[1].on("data", (d) => {
   console.log("Message_	1**** =>", d.toString());
+ // ls.stdio[3].write(Buffer.from(Uint32Array.of(Buffer.byteLength("HEY FUCKER!!!")).buffer));
+ // ls.stdio[3].write("***************** fucker WRITE 3******\n");
   
 });
 /*
