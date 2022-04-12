@@ -17,12 +17,12 @@ int a = 0;int c = 0;
 static gboolean readi(GIOChannel *gio, GIOCondition condition, gpointer data){
 	g_print(yellow"Read func in child\n"rst);
 	a++;
-	if(a > 8) return TRUE;
+	if(a > 4) return FALSE;
 	g_print("gio is readable? %d\n", gio->is_readable);
 	g_print("gio is writeable? %d\n", gio->is_writeable);
 	if(gio->is_readable == 0){
 		g_print(redc "o fuck is not readable in child\n"); 
-		return FALSE;
+	//	return FALSE;
 	}
 	GError *err = NULL;
 	
@@ -94,7 +94,7 @@ GIOStatus ret;
 int main(int argc, char* argv[]){
 	
 	GError *error = NULL;
-//int fds[5];
+int fds[1];
 	
 	//if(!g_unix_open_pipe(fds, FD_CLOEXEC, &error)){g_error("creating pipes %s\n", error->message);}
 	
@@ -102,8 +102,8 @@ int main(int argc, char* argv[]){
     //if(!g_unix_set_fd_nonblocking(4, TRUE, &error)){g_error("Oh now failed non blockin %s\n", error->message);}
 
 	//GIOChannel *channel0 = g_io_channel_unix_new(0);if(!channel0) g_error("cannot create new giochannel\n");
-//	GIOChannel *channel1 = g_io_channel_unix_new(1);if(!channel1) g_error("cannot create new giochannel\n");
-//	GIOChannel *channel2 = g_io_channel_unix_new(2); if(!channel2) g_error("cannot create new giochannel\n");
+	//GIOChannel *channel1 = g_io_channel_unix_new(1);if(!channel1) g_error("cannot create new giochannel\n");
+	//GIOChannel *channel2 = g_io_channel_unix_new(2); if(!channel2) g_error("cannot create new giochannel\n");
 	
 	GIOChannel *channel3 = g_io_channel_unix_new(3);if(!channel3) g_error("cannot create new giochannel\n");//producer writes
 //GIOChannel *channel4 = g_io_channel_unix_new(4);if(!channel4) g_error("cannot create new giochannel\n");//consumer reads
@@ -124,12 +124,13 @@ int main(int argc, char* argv[]){
 	//g_print("is_readable 3: %d\n", channel3->is_readable);
 	//g_print("is_readable 4: %d\n", channel4->is_readable);
 	//g_print("is_readable 5: %d\n", channel5->is_readable);
-	
+	//dup2(3,3);
 	
 	//if(!g_io_add_watch(channel0, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel1, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel2, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 	if(!g_io_add_watch(channel3, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
+	//if(!g_io_add_watch(channel3, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel4, G_IO_IN | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 //if(!g_io_add_watch(channel5, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel6, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");

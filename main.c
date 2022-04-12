@@ -14,9 +14,10 @@ int a = 0;
 
 static gboolean writ(GIOChannel *gio, GIOCondition condition, gpointer data){
 	a++;
+	
 	if(a > 8)return TRUE;
 	const gchar *msg = "*** Hello from parent to the child!!!! ***.\0";
-	g_print("is_writeable? => %d\n", gio->is_writeable);
+	g_print("is_writeable in parent? => %d\n", gio->is_writeable);
 	GIOStatus ret;
 	GError *err = NULL;
 	gsize len;
@@ -32,7 +33,7 @@ static gboolean writ(GIOChannel *gio, GIOCondition condition, gpointer data){
 	  
 	ret = g_io_channel_write_chars(gio, msg, -1, &len, &err);
 	if(ret == G_IO_STATUS_ERROR) g_error("error writing: %s\n", err->message);
-	g_print("wrote %lu bytes\n", len);
+	g_print("Parent wrote %lu bytes\n", len);
 	g_io_channel_flush(gio, NULL);
 	return TRUE;
 }
@@ -70,44 +71,41 @@ g_print(green "Some data to read in parent: %s\n" rst, buf);
 
 
 int main(int argc, char* argv[]){
-	g_print("alles ok\n");
+
 	
 	GSubprocessLauncher *launcher = NULL;
 	GSubprocess *subprocess = NULL;
-	GInputStream *input_stream = NULL;
-	GDataInputStream *data_stream = NULL;
+	
 	GError *error = NULL;
 	
 
 
 //launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
-launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_INHERIT_FDS);
+//launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_INHERIT_FDS);
 //launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_INHERIT_FDS | G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDERR_PIPE);
 //launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDOUT_PIPE);
-//launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDIN_PIPE );
-//launcher = g_subprocess_launcher_new( G_SUBPROCESS_FLAGS_STDIN_PIPE);
+//launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_STDOUT_PIPE /*| G_SUBPROCESS_FLAGS_STDIN_PIPE*/ | G_SUBPROCESS_FLAGS_STDERR_PIPE);
+launcher = g_subprocess_launcher_new( G_SUBPROCESS_FLAGS_STDIN_PIPE);
 //launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_INHERIT_FDS | G_SUBPROCESS_FLAGS_STDOUT_PIPE);
-	g_subprocess_launcher_setenv(launcher, "MEDIASOUP_VERSION", "3.7.6", TRUE);
+//launcher = g_subprocess_launcher_new(G_SUBPROCESS_FLAGS_STDOUT_PIPE);
 	
-	//subprocess = g_subprocess_launcher_spawn(launcher, &error, "./mediasoup-worker", NULL);
 	subprocess = g_subprocess_launcher_spawn(launcher, &error, "./child", NULL);
 	if(error){
 		g_print("err %s\n", error->message);
-		//g_error_free(error);
+		g_error_free(error);
 		return 1;
 	}
-	int fds[1];
+	int fds[4];
 	if(!g_unix_open_pipe(fds, FD_CLOEXEC, &error))if(error)g_error("creating pipes %s\n", error->message);
 	//g_error_free(error);
-	
-	g_subprocess_launcher_take_stdin_fd(launcher, 3); //3 4 5 6 
-	
-	g_subprocess_launcher_take_stdout_fd(launcher, 3);
+	//pipe(fds);
+	//g_subprocess_launcher_take_stdin_fd(launcher, 3); //3 4 5 6 
+	//g_subprocess_launcher_take_stdout_fd(launcher, 3);
 	//g_subprocess_launcher_take_stderr_fd(launcher, 3);//etwas no data
 	//g_subprocess_launcher_take_stdout_fd(launcher, 4);
 	
 	//g_subprocess_launcher_take_stdin_fd(launcher, 4); //3 4 5 6 
-	//g_subprocess_launcher_take_fd(launcher, 0, 3);
+	
 	//g_subprocess_launcher_take_fd(launcher, 1, 4);
 	//g_subprocess_launcher_take_stdout_fd(launcher, 4);
 	//g_subprocess_launcher_take_stderr_fd(launcher, 4);
@@ -151,7 +149,9 @@ launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_INHERIT_FDS);
 	//g_io_channel_set_encoding(channel3, "UTF-8", NULL);
 	//g_io_channel_set_buffered(channel3, FALSE);
 	g_io_channel_set_flags(channel3, G_IO_FLAG_NONBLOCK, NULL); 
-	
+	//g_subprocess_launcher_take_fd(launcher, 0, 3);
+	//int sa=dup2(3,3);
+	//g_print("dup %d\n",sa);
 	if(!g_unix_set_fd_nonblocking(0, TRUE, &error))
 	g_error("failed non blockin %s\n", error->message);
 	if(!g_unix_set_fd_nonblocking(1, TRUE, &error))
@@ -177,13 +177,10 @@ launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_INHERIT_FDS);
 	//if(!g_io_add_watch(channel1, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel2, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
 	if(!g_io_add_watch(channel3, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
-	
+	//if(!g_io_add_watch(channel3, G_IO_IN | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel6, G_IO_IN | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel7, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
 	
-	//const gchar *msg = "the fucker the fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckerthe fuckervthe fuckerthe fucker";
-	
-	//GError *err = NULL;
 	
 	//g_print("producer_channel is writable: %d\n", producer_channel->is_writeable);
 	//g_print("consumer_channel is writable: %d\n", consumer_channel->is_writeable);
@@ -193,35 +190,18 @@ launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_INHERIT_FDS);
 //g_timeout_add_seconds(1, (GSourceFunc) persona_active_cb, channel3);
 	
 	
-	
-GBytes* stdout_buf;
-	GBytes* stderr_buf;
-	GBytes* stdin_buf;
-
  gchar *output2;
      gchar *error2;
      
-	//g_subprocess_communicate_utf8(subprocess, NULL, NULL, &output2, &error2, &error);
-	//g_print("error: %s\n", error2);
-	//g_print("Data in communicate: %s\n", output2); 
-	GOutputStream * stream = NULL;
-
-
-if(error){g_print("some error: %s\n", error->message);}
-
-
-if(error){
+	g_subprocess_communicate_utf8(subprocess, NULL, NULL, &output2, &error2, &error);
+	g_print("error: %s\n", error2);
+	g_print("Data in communicate: %s\n", output2); 
 	
-	g_print("uhu %s\n", error->message);
-}
 
 	
 	loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);
-	//ret = g_io_channel_write_chars(consumer_channel, msg, -1, &len, &error);
-	//if(ret == G_IO_STATUS_ERROR) g_error("error writing: %s\n", error->message);
-	//g_print("wrote %u bytes\n", len);
-	//g_io_channel_unref(mychannel);
+
 	g_main_loop_unref(loop);
 	g_object_unref(launcher);
 	g_clear_object(&launcher);
