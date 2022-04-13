@@ -128,7 +128,7 @@ int fds[1];
 	
 	//if(!g_io_add_watch(channel0, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel1, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
-	//if(!g_io_add_watch(channel2, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
+	//if(!g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	if(!g_io_add_watch(channel3, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel3, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel4, G_IO_IN | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
