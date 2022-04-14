@@ -10,3 +10,5 @@ t: t.c
 	gcc -o t t.c
 f: f.c
 	gcc -o f f.c
+u: u.c
+	gcc -o u u.c `pkg-config --cflags --libs libuv`
