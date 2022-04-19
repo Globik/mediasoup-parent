@@ -12,3 +12,5 @@ f: f.c
 	gcc -o f f.c
 u: u.c
 	gcc -o u u.c `pkg-config --cflags --libs libuv`
+l: child2.c
+	gcc -o l child2.c `pkg-config --cflags --libs libuv`
