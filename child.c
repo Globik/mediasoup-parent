@@ -5,6 +5,7 @@
 #include <gio/gunixsocketaddress.h>
 #include <errno.h>
 #include <glib-unix.h>
+#include <stdio.h>
 
 #define green "\x1b[32m"
 #define yellow "\x1b[33m"
@@ -16,12 +17,18 @@ int a = 0;int c = 0;
 
 static gboolean readi(GIOChannel *gio, GIOCondition condition, gpointer data){
 	g_print(yellow"Read func in child\n"rst);
+	fprintf(stderr, "read func in child\n");
 	a++;
 	if(a > 4) return FALSE;
-	g_print("gio in read is readable? %d\n", gio->is_readable);
+	fprintf(stderr, "gio in read is readable? %d\n", gio->is_readable);
 	g_print("gio in eadis writeable? %d\n", gio->is_writeable);
+	
+	
+	
+
 	if(!gio->is_readable){
 		g_print(redc "o fuck is not readable in child\n"); 
+		fprintf(stdout, "readable fuck\n");
 		return TRUE;
 	}
 	GError *err = NULL;
@@ -39,30 +46,16 @@ gunichar thechar;
 
 gsize tpos;
 
-//gchar buf[ BUFSIZ + 1 ]; mama papa
-//GString *bufi = g_string_sized_new(512);
-// g_io_cha g_io_channel_read_line_string( chann, buffer, 0, &err ) 
-//g_io_channel_read_chars(gio, buf, sizeof(buf), &bytes_read, &err);
-//g_io_channel_read_unichar(gio, &thechar, &err);
 
-//g_print(green "Some data to read in child: %s\n" rst, buf);
-//g_print("Some data to read in child %d\n", thechar);
-//g_print("length in child %lu\n", bytes_read);
-/*
- while( G_IO_STATUS_NORMAL == g_io_channel_read_line_string( gio, bufi, &tpos, &err ) ) {
-   }
-      g_print(green "Some data to read in child1: %s\n" rst, bufi->str);
-      g_print("length in child line_string: %lu\n", tpos);
-    */  
    while( G_IO_STATUS_NORMAL == g_io_channel_read_chars( gio, buf, sizeof(buf), &bytes_read, &err )) {
       
-     // if( n < BUFSIZ ) break;
+   
    }
-  // buf[sizeof(buf)]="\0";// any need?
+  
    g_print("Some data to read in child2: %s\n", buf);
-g_print("length in child %lu\n", bytes_read);
+   g_print("length in child %lu\n", bytes_read);
 
-
+fprintf(stderr, "data in child read func %s\n", buf);
 
 
 
@@ -95,8 +88,8 @@ GIOStatus ret;
 int main(int argc, char* argv[]){
 	g_print("the child\n");
 	GError *error = NULL;
-int fds[3];
-	
+int fds[2];
+	fprintf(stderr, "Hallo child\n");
 	//if(!g_unix_open_pipe(fds, FD_CLOEXEC, &error)){g_error("creating pipes %s\n", error->message);}
 	
 	//if(!g_unix_set_fd_nonblocking(3, TRUE, &error)){g_error("failed 3 non blockin \n");}
@@ -149,7 +142,7 @@ int fds[3];
 	//if(!g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	if(!g_io_add_watch(channel3, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel3, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
-	if(!g_io_add_watch(channel4, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
+	//if(!g_io_add_watch(channel4, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 //if(!g_io_add_watch(channel4, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel6, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel7, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");

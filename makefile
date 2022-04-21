@@ -14,3 +14,5 @@ u: u.c
 	gcc -o u u.c `pkg-config --cflags --libs libuv`
 l: child2.c
 	gcc -o l child2.c `pkg-config --cflags --libs libuv`
+fi: fuck.c
+	gcc -o fi fuck.c `pkg-config --cflags --libs libuv`
