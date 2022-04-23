@@ -74,7 +74,7 @@ GIOStatus ret;
 	gsize len;
 
 	const char *msg = "fuck putin";
-	 ret = g_io_channel_write_chars(gio, msg, -1, &len, &error);
+	 ret = g_io_channel_write_chars(gio, msg, 1, &len, &error);
 	if(ret == G_IO_STATUS_ERROR) {
 		g_error("error writing: %s\n", error->message);
 		g_error_free(error);
@@ -142,7 +142,7 @@ int fds[2];
 	//if(!g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	if(!g_io_add_watch(channel3, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel3, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
-	//if(!g_io_add_watch(channel4, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
+	if(!g_io_add_watch(channel4, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 //if(!g_io_add_watch(channel4, G_IO_IN | G_IO_HUP, readi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel6, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
 	//if(!g_io_add_watch(channel7, G_IO_OUT | G_IO_HUP, writi, NULL)) g_error("cannot add watch on giochannel\n");
