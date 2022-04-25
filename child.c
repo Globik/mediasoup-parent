@@ -52,8 +52,8 @@ gsize tpos;
    
    }
   
-   g_print("Some data to read in child2: %s\n", buf);
-   g_print("length in child %lu\n", bytes_read);
+   fprintf(stderr, "Some data to read in child2: %s\n", buf);
+   fprintf(stderr, "length in child %lu\n", bytes_read);
 
 fprintf(stderr, "data in child read func %s\n", buf);
 
@@ -65,7 +65,7 @@ return TRUE;
 static gboolean writi(GIOChannel *gio, GIOCondition condition, gpointer data)
 {
 	g_print("in writi\n");
-	g_print("gio is writeable in child? %d\n", gio->is_writeable);
+	fprintf(stderr, "gio is writeable in child? %d\n", gio->is_writeable);
 	g_print("gio is readable in child? %d\n", gio->is_readable);
 	if(!gio->is_writeable) return FALSE;
 	if(c == 4){return FALSE;}
@@ -74,7 +74,7 @@ GIOStatus ret;
 	gsize len;
 
 	const char *msg = "fuck putin";
-	 ret = g_io_channel_write_chars(gio, msg, 1, &len, &error);
+	 ret = g_io_channel_write_chars(gio, msg, 5, &len, &error);
 	if(ret == G_IO_STATUS_ERROR) {
 		g_error("error writing: %s\n", error->message);
 		g_error_free(error);
@@ -113,7 +113,7 @@ int fds[2];
 	g_io_channel_set_encoding(channel4, NULL, NULL);
 	g_io_channel_set_buffered(channel4, FALSE);
 	g_io_channel_set_flags(channel3, G_IO_FLAG_NONBLOCK, NULL);  //writes
-	g_io_channel_set_flags(channel4, G_IO_FLAG_NONBLOCK, NULL); //reads
+	//g_io_channel_set_flags(channel4, G_IO_FLAG_NONBLOCK, NULL); //reads
 	
 	//GIOChannel *channel6 = g_io_channel_unix_new(4);if(!channel6) g_error("cannot create new giochannel\n");//producer writes
 	//GIOChannel *channel7 = g_io_channel_unix_new(5);if(!channel7) g_error("cannot create new giochannel\n");//consumer reads

@@ -1,3 +1,5 @@
+// make u
+
 #include <uv.h>
 #include <string.h>
 #include <stdio.h>
@@ -13,11 +15,11 @@ uv_pipe_t pipi2, pipi3,pipi4;
 uv_loop_t*loop;
 
 static void on_alloc(uv_handle_t* handle, size_t si, uv_buf_t* );
-static void on_read(uv_stream_t tcp, ssize_t nread, const uv_buf_t );
+static void on_read(uv_stream_t *tcp, ssize_t nread, const uv_buf_t* );
 static void after_write(uv_write_t* req, int status);
 
 int main(){
-	fprintf(stderr, "child\n");
+	fprintf(stderr, "child2\n");
 	int r;
 	//uv_write_t *write_req;
 	//uv_buf_t buf;
@@ -37,59 +39,43 @@ int main(){
 	if(r !=0)fprintf(stderr, "r => %s\n", uv_strerror(r));
 	r = uv_pipe_open(&pipi4, 4);
 	if(r !=0)fprintf(stderr, "r => %s\n", uv_strerror(r));
-	
 
-//	if(r !=0)fprintf(stderr, "r uv read start => %s\n", uv_strerror(r));
-	
-	
-	//r = uv_read_start((uv_stream_t*)&pipi4, on_alloc,( uv_read_cb)on_read);
-	//if(r !=0)printf("Child read start  uv read start => %s\n", uv_strerror(r));
-
-	
 	
 	
 	
 	uv_write_t *write_req;
 	write_req = malloc(sizeof(*write_req));
-	uv_buf_t bufi = uv_buf_init("a\n", 1);
+	uv_buf_t bufi = uv_buf_init("fuck", 4);
 	
 	r = uv_write(write_req, (uv_stream_t*)&pipi4 , &bufi, 1, after_write);
 	if(r !=0)fprintf(stderr, "r uv write => %s\n", uv_strerror(r));
+	
+	
+	r = uv_read_start((uv_stream_t*)&pipi3, on_alloc,( uv_read_cb)on_read);
+	if(r !=0)printf("child uv read start => %s\n", uv_strerror(r));
 	
 	return uv_run(loop, UV_RUN_DEFAULT);
 }
 static void on_alloc(uv_handle_t* handle, size_t si, uv_buf_t* buf){
 	fprintf(stderr, "si: %ld\n", si);
-	//buf=malloc(sizeof(*buf));
-	//bufa->base = "malloc(si);";
-	//bufa->len = si;
-//	fprintf(stderr, "buf %s\n", buf->base);
-
 	*buf = uv_buf_init((char*) malloc(si), si);
 	if(buf->base == NULL) fprintf(stderr, "bufa->base is NULL");
-	//buf->base="al";
-	//fprintf(stderr, "some data %s\n", buf->base);
 }
 
 int a = 0;
-  static void on_read(uv_stream_t tcp, ssize_t nread, const uv_buf_t buf){
-	char * ew = tcp.data;
-	fprintf(stderr, "data %s\n", ew);
+  static void on_read(uv_stream_t *tcp, ssize_t nread, const uv_buf_t *buf){
+	
 	a++;
 	fprintf(stderr, "on_red child\n");
-	fprintf(stderr, "data len: %ld\n", nread);
-	//fprintf(stderr, "buf %ld\n", bu->len);
-	//fprintf(stderr, "buf %s\n", buf.base);
-	//fprintf(stderr, "buf %s\n", bu->base);
-	//doc(buf);
-	//free(buf->base);
-	//free(buf);
-	//if(bu->len)fprintf(stderr, "buffer len: %ld\n", bu->len);
+	fprintf(stderr, "child data len: %ld\n", nread);
+	fprintf(stderr, "buf %ld\n", buf->len);
+	fprintf(stderr, "################## child buf %s\n", buf->base);
 	
+	free(buf->base);
 	
-	//free(&bufi.base);
+	uv_read_stop(tcp);
 }
 static void after_write(uv_write_t* req, int status){
-	fprintf(stderr, "status after write %d\n", status);
+	fprintf(stderr, "child status after write %d\n", status);
 	free(req);
 }
