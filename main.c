@@ -85,7 +85,7 @@ GDestroyNotify destroy_notify(){
 }
 
 int main(int argc, char* argv[]){
-
+g_print("GLIB VERSION: %d.%d.%d\n", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION);
 	
 	GSubprocessLauncher *launcher = NULL;
 	GSubprocess *subprocess = NULL;

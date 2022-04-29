@@ -39,8 +39,8 @@ int main(){
 	
 	char* args[2];
 	//args[0] = "./l";
-	args[0] = "./child";
-	//args[0] = "./medisaoup-worker";
+	//args[0] = "./child";
+	args[0] = "./medisaoup-worker";
 	args[1] = NULL;
 	
 	uv_stdio_container_t child_stdio[7];
@@ -72,10 +72,10 @@ int main(){
 	//options.stdio_count = 4;
 	
 	options.exit_cb = on_exiti;
-	options.file = "./child";
+	//options.file = "./child";
 	//options.file = "./l";
 	
-	//options.file = "./mediasoup-worker";
+	options.file = "./mediasoup-worker";
 	options.args = args;
 	options.flags = 0;
 	
@@ -104,7 +104,9 @@ int main(){
 	
 
 	//uv_stream_set_blocking((uv_stream_t*)&pip2, 0);
-	int c = 1;
+	int c = 0;
+	uv_stream_set_blocking((uv_stream_t*)&pip1, c);
+	uv_stream_set_blocking((uv_stream_t*)&pip2, c);
 	uv_stream_set_blocking((uv_stream_t*)&pip3, c);
 	uv_stream_set_blocking((uv_stream_t*)&pip4, c);
 	uv_stream_set_blocking((uv_stream_t*)&pip5, c);
@@ -124,10 +126,13 @@ int main(){
 	
 	printf("after spawn\n");
 	
-	r = uv_write(write_req, (uv_stream_t*)&pip3 , &buf, 1, after_write);
-	if(r!=0)printf("r uv write => %s\n", uv_strerror(r));
+	//r = uv_write(write_req, (uv_stream_t*)&pip3 , &buf, 1, after_write);
+	//if(r!=0)printf("r uv write => %s\n", uv_strerror(r));
 	
 	r = uv_read_start((uv_stream_t*)&pip4, on_alloc,( uv_read_cb)on_read);
+	if(r !=0)printf("parent uv read start => %s\n", uv_strerror(r));
+	
+	r = uv_read_start((uv_stream_t*)&pip6, on_alloc,( uv_read_cb)on_read);
 	if(r !=0)printf("parent uv read start => %s\n", uv_strerror(r));
 	
 	return uv_run(loop, UV_RUN_DEFAULT);
