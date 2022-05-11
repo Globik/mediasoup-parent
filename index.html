@@ -1,0 +1,15 @@
+<html>
+<body>
+<script>
+
+
+function decodeuint8arr(uint8array){
+	return new TextDecoder('utf-8').decode(uint8array);
+} 
+// var myuint8arr = new Uint8Array([72,101,108,108, 111, 32, 33])
+var myuint8arr = new Uint8Array([35, 0, 0, 0, 123, 34, 101, 118, 101, 110, 116, 34, 58, 34, 114, 117, 110, 110, 105, 110, 103, 34, 44, 34, 116, 97, 114, 103, 101, 116 ,73 ,100 ,34, 58, 51, 55, 55, 49, 125])
+var s = decodeuint8arr(myuint8arr);
+alert(s);
+</script>
+</body>
+</html>

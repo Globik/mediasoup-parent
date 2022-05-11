@@ -5,7 +5,28 @@
 #include <inttypes.h>
 #include <unistd.h>
 //#include <glib.h>
+#include <sys/types.h>
+#include <sys/param.h>
+#include <sys/types.h>
 
+#include <stdarg.h>
+//#include <stdlib.h>
+#include <stdint.h>
+#define KORE_MEM_MAGIC		0xd0d0
+struct kore_buf{
+	void* data ;//= NULL;
+
+	int length;
+	int offset;
+	//buf->flags = 0;
+	
+};
+
+struct memsize {
+	size_t			len;
+	size_t			magic;
+} __attribute__((packed));
+static inline struct memsize	*memsize(void *);
 uv_loop_t*loop;
 
 uv_pipe_t pip0;
@@ -23,6 +44,16 @@ static void on_exiti(uv_process_t*, int64_t, int);
 static void after_write(uv_write_t* , int);
 static void on_alloc(uv_handle_t* , size_t , uv_buf_t* );
 static void on_read(uv_stream_t*, ssize_t , const uv_buf_t* );
+
+void kore_buf_cleanup(struct kore_buf *buf);
+void  kore_buf_free(struct kore_buf *buf);
+struct kore_buf *kore_buf_alloc(size_t initial);
+void kore_buf_init(struct kore_buf *buf, size_t initial);
+void kore_buf_append(struct kore_buf *buf, const void *data, size_t len);
+void kore_buf_appendf(struct kore_buf *buf, const char *fmt, ...);
+char * kore_buf_stringify(struct kore_buf *buf, size_t *len);
+static void kore_buf_appendv(struct kore_buf *buf, const char *fmt, va_list args);
+void * kore_realloc(void *ptr, size_t len);
 
 int main(){
 	
@@ -104,7 +135,7 @@ int main(){
 	
 
 	//uv_stream_set_blocking((uv_stream_t*)&pip2, 0);
-	int c = 0;
+	int c = 1;
 	uv_stream_set_blocking((uv_stream_t*)&pip1, c);
 	uv_stream_set_blocking((uv_stream_t*)&pip2, c);
 	uv_stream_set_blocking((uv_stream_t*)&pip3, c);
@@ -163,11 +194,49 @@ static void on_alloc(uv_handle_t* handle, size_t si, uv_buf_t* buf){
 	printf("ON ALOC PARENT %ld\n", si);
 	
 }
+int a = 0;
 static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf){
-
+	a++;
+	printf("*******************************a: %d\n", a);
+char duffer[255];
+	int offseti = 0;
 	printf("################ parent on read %s\n", buf->base);
-	printf("buf.len in parent  %ld\n", buf->len);
-	printf("nread parent: %ld\n", nread);
+	printf("************** buf.len in parent ****** %ld\n", buf->len);
+	printf("*********** nread parent *****************: %ld\n", nread);
+	for(int i = 4; i < nread; i++){
+		char b = buf->base[i];
+		offseti+= snprintf(duffer + offseti, 255 - offseti, "%c", buf->base[i]);
+		printf("SUKA %c", buf->base[i]);
+	}
+	//duffer[6]="\0";
+		printf("duffer: %s\n", duffer);
+		
 	free(buf->base);
+	
 uv_read_stop(tcp);
 }
+
+
+
+
+
+// 35 0 0 0 123 34 101 118 101 110 116 34 58 34 114 117 110 110 105 110 103 34 44 34 116 97 114 103 101 116 73 100 34 58 51 55 55 49 125
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

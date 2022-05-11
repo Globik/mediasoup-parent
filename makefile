@@ -18,3 +18,5 @@ fi: fuck.c
 	gcc -o fi fuck.c `pkg-config --cflags --libs libuv`
 b: buf.c
 	gcc -o b buf.c `pkg-config --cflags --libs libuv`
+re: re.c
+	gcc -o re re.c 
