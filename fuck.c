@@ -78,7 +78,7 @@ int main(){
 	if(r !=0)fprintf(stderr, "open 4 => %s\n", uv_strerror(r));
 uv_write_t *write_req;
 	write_req = malloc(sizeof(write_req));
-	if(write_req == NULL)printf("write_req");
+	if(write_req == NULL)printf("write_req null\n");
 	uv_buf_t bufi = uv_buf_init("b\n", 1);
 	
 

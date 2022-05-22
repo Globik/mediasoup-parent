@@ -160,6 +160,9 @@ int main(){
 	//r = uv_write(write_req, (uv_stream_t*)&pip3 , &buf, 1, after_write);
 	//if(r!=0)printf("r uv write => %s\n", uv_strerror(r));
 	
+	r = uv_read_start((uv_stream_t*)&pip2, on_alloc,( uv_read_cb)on_read);
+	if(r !=0)printf("parent uv read start => %s\n", uv_strerror(r));
+	
 	r = uv_read_start((uv_stream_t*)&pip4, on_alloc,( uv_read_cb)on_read);
 	if(r !=0)printf("parent uv read start => %s\n", uv_strerror(r));
 	
@@ -199,21 +202,37 @@ static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf){
 	a++;
 	printf("*******************************a: %d\n", a);
 char duffer[255];
-	int offseti = 0;
+	int offseti = 0;int r;
 	printf("################ parent on read %s\n", buf->base);
 	printf("************** buf.len in parent ****** %ld\n", buf->len);
 	printf("*********** nread parent *****************: %ld\n", nread);
 	for(int i = 4; i < nread; i++){
 		char b = buf->base[i];
 		offseti+= snprintf(duffer + offseti, 255 - offseti, "%c", buf->base[i]);
-		printf("SUKA %c", buf->base[i]);
+		printf("%c", buf->base[i]);
 	}
 	//duffer[6]="\0";
 		printf("duffer: %s\n", duffer);
 		
 	free(buf->base);
+	char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
+	char * durai = "35 0 0 0 123 34 101 118 101 110";
+	uv_write_t *write_req;
+	uv_write_t *write_req1;
+	write_req = malloc(sizeof(write_req));
+	if(write_req == NULL)printf("write_req null\n");
+	uv_buf_t bufi = uv_buf_init(durai, strlen(durai));
 	
-uv_read_stop(tcp);
+	r = uv_write(write_req, (uv_stream_t*)&pip5 , &bufi, 1, after_write);
+	if(r !=0)fprintf(stderr, "r uv write => %s\n", uv_strerror(r));
+	
+	write_req1 = malloc(sizeof(write_req1));
+	if(write_req1 == NULL)printf("write_req null\n");
+	//uv_buf_t 
+	bufi = uv_buf_init(dura, strlen(dura));
+	r = uv_write(write_req1, (uv_stream_t*)&pip5 , &bufi, 1, after_write);
+	if(r !=0)fprintf(stderr, "r uv write => %s\n", uv_strerror(r));
+  //uv_read_stop(tcp);
 }
 
 
