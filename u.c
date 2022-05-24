@@ -3,29 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include <unistd.h>
+//#include <unistd.h>
 //#include <glib.h>
-#include <sys/types.h>
-#include <sys/param.h>
-#include <sys/types.h>
+//#include <sys/types.h>
+//#include <sys/param.h>
+//#include <sys/types.h>
 
-#include <stdarg.h>
+//#include <stdarg.h>
 //#include <stdlib.h>
-#include <stdint.h>
-#define KORE_MEM_MAGIC		0xd0d0
-struct kore_buf{
-	void* data ;//= NULL;
+//#include <stdint.h>
 
-	int length;
-	int offset;
-	//buf->flags = 0;
-	
-};
+//#include <stddef.h>
 
-struct memsize {
-	size_t			len;
-	size_t			magic;
-} __attribute__((packed));
+//#include <stdbool.h>
+
 static inline struct memsize	*memsize(void *);
 uv_loop_t*loop;
 
@@ -42,18 +33,10 @@ uv_process_options_t options;
 
 static void on_exiti(uv_process_t*, int64_t, int);
 static void after_write(uv_write_t* , int);
+static void after_write1(uv_write_t* , int);
 static void on_alloc(uv_handle_t* , size_t , uv_buf_t* );
 static void on_read(uv_stream_t*, ssize_t , const uv_buf_t* );
 
-void kore_buf_cleanup(struct kore_buf *buf);
-void  kore_buf_free(struct kore_buf *buf);
-struct kore_buf *kore_buf_alloc(size_t initial);
-void kore_buf_init(struct kore_buf *buf, size_t initial);
-void kore_buf_append(struct kore_buf *buf, const void *data, size_t len);
-void kore_buf_appendf(struct kore_buf *buf, const char *fmt, ...);
-char * kore_buf_stringify(struct kore_buf *buf, size_t *len);
-static void kore_buf_appendv(struct kore_buf *buf, const char *fmt, va_list args);
-void * kore_realloc(void *ptr, size_t len);
 
 int main(){
 	
@@ -188,6 +171,10 @@ static void after_write(uv_write_t* req, int status){
 	printf("parent status after write %d\n", status);
 	free(req);
 }
+static void after_write1(uv_write_t* req, int status){
+	printf("parent status after write1 %d\n", status);
+	free(req);
+}
 static void on_alloc(uv_handle_t* handle, size_t si, uv_buf_t* buf){
 	//buf->base = malloc(si);
 	//buf->len = si;
@@ -203,34 +190,42 @@ static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf){
 	printf("*******************************a: %d\n", a);
 char duffer[255];
 	int offseti = 0;int r;
-	printf("################ parent on read %s\n", buf->base);
+	printf("################ parent on read %d\n", buf->base[0]);
+	printf("################ parent on read %d\n", buf->base[1]);
+	printf("################ parent on read %d\n", buf->base[2]);
+	printf("################ parent on read %d\n", buf->base[3]);
 	printf("************** buf.len in parent ****** %ld\n", buf->len);
 	printf("*********** nread parent *****************: %ld\n", nread);
 	for(int i = 4; i < nread; i++){
 		char b = buf->base[i];
 		offseti+= snprintf(duffer + offseti, 255 - offseti, "%c", buf->base[i]);
-		printf("%c", buf->base[i]);
+		//printf("Here c %c", buf->base[i]);
 	}
 	//duffer[6]="\0";
 		printf("duffer: %s\n", duffer);
 		
 	free(buf->base);
-	char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
-	char * durai = "35 0 0 0 123 34 101 118 101 110";
+	//char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
+	char*dura = "{\"n\":\"f\"}";
+	uint8_t buffer[14]= { 0x09 ,0x00, 0x00, 0x00,  '{','"','n','"',':','"','f','"','}' };
 	uv_write_t *write_req;
 	uv_write_t *write_req1;
-	write_req = malloc(sizeof(write_req));
-	if(write_req == NULL)printf("write_req null\n");
-	uv_buf_t bufi = uv_buf_init(durai, strlen(durai));
 	
-	r = uv_write(write_req, (uv_stream_t*)&pip5 , &bufi, 1, after_write);
+	if(a > 2) return;
+	write_req = malloc(sizeof(write_req1));
+	if(write_req == NULL)printf("write_req null\n");
+	//uv_buf_t 
+	uv_buf_t bufi = uv_buf_init((char*)buffer, 14);
+	//int written     = uv_try_write(reinterpret_cast<uv_stream_t*>(this->uvHandle), &buffer, 1);
+	//int written     = uv_try_write((uv_stream_t*)write_req, &bufi, 1);
+	//printf("written : %d\n", written);
+	r = uv_write(write_req, (uv_stream_t*)&pip3 , &bufi, 1, after_write);
 	if(r !=0)fprintf(stderr, "r uv write => %s\n", uv_strerror(r));
 	
-	write_req1 = malloc(sizeof(write_req1));
-	if(write_req1 == NULL)printf("write_req null\n");
-	//uv_buf_t 
-	bufi = uv_buf_init(dura, strlen(dura));
-	r = uv_write(write_req1, (uv_stream_t*)&pip5 , &bufi, 1, after_write);
+	//write_req1 = malloc(sizeof(write_req));
+	//if(write_req1 == NULL)printf("write_req null\n");
+	uv_buf_t bufa = uv_buf_init(dura, strlen(dura));
+	//r = uv_write(write_req, (uv_stream_t*)&pip3 , &bufa, 1, after_write);
 	if(r !=0)fprintf(stderr, "r uv write => %s\n", uv_strerror(r));
   //uv_read_stop(tcp);
 }

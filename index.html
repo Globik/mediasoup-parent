@@ -10,6 +10,9 @@ function decodeuint8arr(uint8array){
 var myuint8arr = new Uint8Array([35, 0, 0, 0, 123, 34, 101, 118, 101, 110, 116, 34, 58, 34, 114, 117, 110, 110, 105, 110, 103, 34, 44, 34, 116, 97, 114, 103, 101, 116 ,73 ,100 ,34, 58, 51, 55, 55, 49, 125])
 var s = decodeuint8arr(myuint8arr);
 alert(s);
+alert(decodeuint8arr(new Uint8Array(['0a', '00' ,'00' ,'00' /* 62 6a 65 63 74 20 41 72 72 61 79 42 75 66 66 65 72 5d*/])).toString())
 </script>
 </body>
 </html>
+5b 6f 62 6a 65 63 74 20 41 72 72 61 79 42 75 66 66 65 72 5d
+<Buffer 66 00 00 00> here fucker=> <Buffer 5b 6f 62 6a 65 63 74 20 41 72 72 61 79 42 75 66 66 65 72 5d>
