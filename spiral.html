@@ -1,111 +1,170 @@
 <html>
+  <head>
+    <title>Line</title>
+    <style>
+      body {
+        margin: 20px;
+        padding: 20px;
+      }
+      h3 {
+        line-height: 2;
+        padding-bottom: 30px;
+      }
+      .points {
+        border: 1px solid orange;
+        margin: 20px;
+        padding: 60px;
+      }
+
+      #codeEntry {
+        margin: 100px;
+        padding: 20px;
+      }
+      button {
+        color: blue;
+        border: 2px solid blue;
+        border-radius: 4px;
+        padding: 15px;
+        font-size: 16px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
   <body>
-    <h3>Canvas</h3>
-    <input id="fileInput" type="file" accept=".json" style="display:none;"><button id="fileSelect">select json file</button>&nbsp;&nbsp;<span id="filename"></span><br><br>
-    <code id="codeEntry" contenteditable=true oninput="give(this);"></code><br><br>
-    <canvas id="cnv" style="border: 1px solid green"></canvas><br><br><h3>Line coordinates:</h3>
-    <output id="out"></output><br><br>
-    <button onclick="drawBrokenLine();">set a line</button>
+    <h1>
+      Соединить точки непрерывной непересекающейся ломаной линией при нажатии на
+      кнопку
+    </h1>
+    <p>
+      Можно выбрать файл в формате json с данными точек x и y. А можно
+      поиграться в кодовом поле вживую.
+    </p>
+    <input
+      id="fileInput"
+      type="file"
+      accept=".json"
+      style="display: none"
+    /><button id="fileSelect">Файл в формате json</button>&nbsp;&nbsp;<span
+      id="filename"
+    ></span
+    ><br /><br />
+    <div class="points">
+      <h3>Кодовая вводная форма.</h3>
+      <code id="codeEntry" contenteditable="true" oninput="give(this);"></code>
+    </div>
+    <br /><br />
+    <canvas id="cnv" style="border: 1px solid green"></canvas>
+    <br /><br />
+    <button onclick="drawBrokenLine();">Провести линию</button>
+    <h3>Координаты ломаной линии:</h3>
+    <output id="out"></output>
+
     <script>
-      
-      var dummyPoints = '[{"x": 240, "y": 4}, {"x":45, "y": 132}, {"x":35, "y": 94}, {"x": 156, "y": 80}, {"x": 66, "y": 78}, {"x": 134, "y":120}, {"x": 10, "y": 50}, {"x": 67, "y": 120}]';
-  
-     var dummyArray;
-    
-     var ctx = cnv.getContext("2d");
-     
+      var dummyPoints =
+        '[{"x": 240, "y": 4}, {"x":45, "y": 132}, {"x":35, "y": 94}, {"x": 156, "y": 80}, {"x": 66, "y": 78}, {"x": 134, "y":120}, {"x": 10, "y": 50}, {"x": 67, "y": 120}]';
+
+      var dummyArray;
+
+      var ctx = cnv.getContext("2d");
+
       codeEntry.textContent = dummyPoints;
       var su = codeEntry.textContent;
-      
-      function give(el){
-	su = el.textContent;
-		  
 
-      let arr = getDummyPoints();
-      if(arr){
-      dummyArray = arr;
-      drawPoints(arr);
-      printSortedCoordinates();
-      drawBrokenLine();
-  }
-  }
-      
-      function drawPoints(arr){
-		  ctx.clearRect(0, 0, cnv.width, cnv.height);
-      arr.forEach(function (el, i) {
-        ctx.fillRect(el.x, el.y, 10, 10);
-      });
-  }
-      
-function getDummyPoints(){
-	try{
-		let n = eval("JSON.parse(su);");
-		return n;
-	}catch(e){return null;}
-	}
-	
-	var tmp = getDummyPoints();
-	
-	function sortedArray(arr){
-      arr.sort(function (a, b) {
-        return a.x - b.x;
-      });
-      return arr;
- }
-if(tmp) {
-	dummyArray =  tmp;
-	printSortedCoordinates(true);
-	drawPoints(tmp);
-}
+      function give(el) {
+        su = el.textContent;
 
-	function printSortedCoordinates(){
-	let sorted = sortedArray(dummyArray);
-	 out.innerHTML = "";
-      sorted.forEach(function (el, i) {
-        out.innerHTML += "{x: " + el.x + ", y: " + el.y + "}, ";
-      });
-	}
+        let arr = getDummyPoints();
+        if (arr) {
+          dummyArray = arr;
+          drawPoints(arr);
+          printSortedCoordinates();
+          drawBrokenLine();
+        }
+      }
 
-  
-  function drawBrokenLine(){
-	  if(!dummyArray) return;
-      ctx.beginPath();
-      ctx.clearRect(0,0,cnv.width, cnv.height);
-      drawPoints(dummyArray);
-      dummyArray.forEach(function (el, i) {
-		ctx.lineTo(el.x + 5, el.y + 5);
-      });
-      ctx.strokeStyle = "green";
-      ctx.stroke();
-  }
-  
-  fileSelect.addEventListener("click", function(e){
-	  
-		  fileInput.click();
-	  
-  }, false);
-  fileInput.addEventListener("change", function(ev){
-	  let file = this.files[0];
-	  filename.textContent = file.name;
-	  let reader = new FileReader();
-	  reader.readAsText(file);
-	  reader.onload = function(){
-		  let a;
-		  try{
-			  codeEntry.textContent = reader.result;
-			  a = JSON.parse(reader.result);
-			  
-			  dummyArray = a;
-      drawPoints(a);
-      printSortedCoordinates();
-		  }catch(e){
-			  alert(e);
-		  }
-	  }
-	  reader.onerror = function(){
-		  alert(reader.error);
-	  }
-  }, false);
+      function drawPoints(arr) {
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        arr.forEach(function (el, i) {
+          ctx.fillRect(el.x, el.y, 10, 10);
+        });
+      }
+
+      function getDummyPoints() {
+        try {
+          let n = eval("JSON.parse(su);");
+          return n;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      var tmp = getDummyPoints();
+
+      function sortedArray(arr) {
+        arr.sort(function (a, b) {
+          return a.x - b.x;
+        });
+        return arr;
+      }
+      if (tmp) {
+        dummyArray = tmp;
+        printSortedCoordinates(true);
+        drawPoints(tmp);
+      }
+
+      function printSortedCoordinates() {
+        let sorted = sortedArray(dummyArray);
+        out.innerHTML = "";
+        sorted.forEach(function (el, i) {
+          out.innerHTML += "{x: " + el.x + ", y: " + el.y + "}, ";
+        });
+      }
+
+      function drawBrokenLine() {
+        if (!dummyArray) return;
+        ctx.beginPath();
+        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        drawPoints(dummyArray);
+        dummyArray.forEach(function (el, i) {
+          ctx.lineTo(el.x + 5, el.y + 5);
+        });
+        ctx.strokeStyle = "green";
+        ctx.stroke();
+      }
+
+      fileSelect.addEventListener(
+        "click",
+        function (e) {
+          fileInput.click();
+        },
+        false
+      );
+      fileInput.addEventListener(
+        "change",
+        function (ev) {
+          let file = this.files[0];
+          filename.textContent = file.name;
+          let reader = new FileReader();
+          reader.readAsText(file);
+          reader.onload = function () {
+            let a;
+            try {
+              codeEntry.textContent = reader.result;
+              a = JSON.parse(reader.result);
+
+              dummyArray = a;
+              drawPoints(a);
+              printSortedCoordinates();
+            } catch (e) {
+              alert(e);
+            }
+          };
+          reader.onerror = function () {
+            alert(reader.error);
+          };
+        },
+        false
+      );
     </script>
   </body>
 </html>

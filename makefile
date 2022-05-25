@@ -20,3 +20,5 @@ b: buf.c
 	gcc -o b buf.c `pkg-config --cflags --libs libuv`
 re: re.c
 	gcc -o re re.c 
+hex: hex.c
+	gcc -o hex hex.c
