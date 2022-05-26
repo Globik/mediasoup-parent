@@ -33,23 +33,23 @@ uv_process_options_t options;
 
 static void on_exiti(uv_process_t*, int64_t, int);
 static void after_write(uv_write_t*, int);
-static void after_write1(uv_write_t*, int);
+
 static void on_alloc(uv_handle_t*, size_t, uv_buf_t* );
 static void on_read(uv_stream_t*, ssize_t, const uv_buf_t* );
-char digit_to_hex(size_t n);
+
 
 int main() {
 
     int r;
-    uv_write_t *write_req;
-    uv_buf_t buf;
+   // uv_write_t *write_req;
+   // uv_buf_t buf;
 
     loop = uv_default_loop();
 
 
 
-    buf = uv_buf_init("hello world\n", 12);
-    write_req = malloc(sizeof(*write_req));
+  //  buf = uv_buf_init("hello world\n", 12);
+  //  write_req = malloc(sizeof(*write_req));
 
     char* args[2];
     //args[0] = "./l";
@@ -171,10 +171,7 @@ static void after_write(uv_write_t* req, int status) {
     printf("parent status after write %d\n", status);
     free(req);
 }
-static void after_write1(uv_write_t* req, int status) {
-    printf("parent status after write1 %d\n", status);
-    free(req);
-}
+
 static void on_alloc(uv_handle_t* handle, size_t si, uv_buf_t* buf) {
     //buf->base = malloc(si);
     //buf->len = si;
@@ -211,8 +208,8 @@ static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
     printf("duffer: %s\n", duffer);
 
     free(buf->base);
-    //char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
-    char*dura = "{\"nid\":\"f\"}";
+    char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
+    //char*dura = "{\"nid\":\"f\"}";
     //uint8_t buffer[15]= { 0x0b ,0x00, 0x00, 0x00,  '{','"','n', 'i','d', '"',':','"','f','"','}' };
     uv_write_t *write_req;
 
@@ -226,9 +223,13 @@ static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
 
     write_req = malloc(sizeof(write_req));
     if(write_req == NULL)printf("write_req null\n");
-   // buffer[0]= 0xb;
-   //buffer[0]=
-   snprintf(buffer,1,"0%x",11);
+   
+  // buffer[0]= 0xb;
+  char details[4];
+	sprintf(details, "%lx", str_len);
+  char b = strtoul(details, NULL, 16);
+   buffer[0]=b;
+   
     buffer[1]=0x00;
     buffer[2]=0x00;
     buffer[3]=0x00;
