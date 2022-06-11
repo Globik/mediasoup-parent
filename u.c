@@ -3,21 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-//#include <unistd.h>
-//#include <glib.h>
-//#include <sys/types.h>
-//#include <sys/param.h>
-//#include <sys/types.h>
+#include <jansson.h>
 
-//#include <stdarg.h>
-//#include <stdlib.h>
-//#include <stdint.h>
 
-//#include <stddef.h>
-
-//#include <stdbool.h>
-
-static inline struct memsize	*memsize(void *);
 uv_loop_t*loop;
 
 uv_pipe_t pip0;
@@ -36,7 +24,8 @@ static void after_write(uv_write_t*, int);
 
 static void on_alloc(uv_handle_t*, size_t, uv_buf_t* );
 static void on_read(uv_stream_t*, ssize_t, const uv_buf_t* );
-
+static void signal_handler(uv_signal_t *, int); 
+static json_t *load_json(const char*text, size_t buflen);
 
 int main() {
 
@@ -127,7 +116,9 @@ int main() {
     uv_stream_set_blocking((uv_stream_t*)&pip6, c);
 
 
-
+uv_signal_t sig;
+uv_signal_init(loop, &sig);
+uv_signal_start(&sig, signal_handler, SIGINT);// sighup sigterm sigpipe sigchld sigtstp
 
     printf("before spawn\n");
 
@@ -143,8 +134,8 @@ int main() {
     //r = uv_write(write_req, (uv_stream_t*)&pip3 , &buf, 1, after_write);
     //if(r!=0)printf("r uv write => %s\n", uv_strerror(r));
 
-    r = uv_read_start((uv_stream_t*)&pip2, on_alloc,( uv_read_cb)on_read);
-    if(r !=0)printf("parent uv read start => %s\n", uv_strerror(r));
+   // r = uv_read_start((uv_stream_t*)&pip2, on_alloc,( uv_read_cb)on_read);
+   // if(r !=0)printf("parent uv read start => %s\n", uv_strerror(r));
 
     r = uv_read_start((uv_stream_t*)&pip4, on_alloc,( uv_read_cb)on_read);
     if(r !=0)printf("parent uv read start => %s\n", uv_strerror(r));
@@ -157,15 +148,10 @@ int main() {
 
 static void on_exiti(uv_process_t* req, int64_t exit_status, int term_signal) {
     fprintf(stderr, "Process exited with status %" PRId64 ", signal %d\n", exit_status, term_signal);
+    printf("Process exited with status %" PRId64 ", signal %d\n", exit_status, term_signal);
     uv_close((uv_handle_t*) req, NULL);
-
-    uv_close((uv_handle_t*)&pip0, NULL);
-    uv_close((uv_handle_t*)&pip1, NULL);
-    uv_close((uv_handle_t*)&pip2, NULL);
-    uv_close((uv_handle_t*)&pip3, NULL);
-    uv_close((uv_handle_t*)&pip4, NULL);
-    uv_close((uv_handle_t*)&pip5, NULL);
-    uv_close((uv_handle_t*)&pip6, NULL);
+uv_loop_close(loop);
+    
 }
 static void after_write(uv_write_t* req, int status) {
     printf("parent status after write %d\n", status);
@@ -181,6 +167,7 @@ static void on_alloc(uv_handle_t* handle, size_t si, uv_buf_t* buf) {
     printf("ON ALOC PARENT %ld\n", si);
 
 }
+
 int a = 0;
 static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
     a++;
@@ -206,7 +193,31 @@ static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
     //duffer[6]="\0";
 
     printf("duffer: %s\n", duffer);
-
+    /*
+    json_t * root = load_json(buf->base, nread);
+    if(root){
+		char * foo = json_dumps(root, 0);
+		printf("*** json *** %s\n", foo);
+		//free(foo);
+		json_decref(root);
+	}else{
+		printf("NO JANSSON ***\n");
+	}
+*/
+json_error_t error;
+json_t *root;
+if(a == 1){
+//json_error_t error;
+//json_t *
+root = json_loads(duffer, 0, &error);
+if(!root) printf("NO ROOT\n");
+json_t *t=json_object_get(root, "event");
+const char*txt = json_string_value(t);
+printf("******************** ROOT ******************* %s\n", txt);
+}
+if(!root){
+	fprintf(stderr, "error on line %d %s\n", error.line, error.text);
+}
     free(buf->base);
     char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
     //char*dura = "{\"nid\":\"f\"}";
@@ -247,14 +258,37 @@ static void on_read(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
     free(buffer);
 
     //uv_read_stop(tcp);
+   
 }
 
 
 
 
+void signal_handler(uv_signal_t *handle, int signum){
+	printf("Signal received %d\n", signum);
+	uv_close((uv_handle_t*)&pip0, NULL);
+	uv_close((uv_handle_t*)&pip1, NULL);
+uv_close((uv_handle_t*)&pip2, NULL);
+    uv_close((uv_handle_t*)&pip3, NULL);
+    uv_close((uv_handle_t*)&pip4, NULL);
+    uv_close((uv_handle_t*)&pip5, NULL);
+    uv_close((uv_handle_t*)&pip6, NULL);
+    
+	uv_signal_stop(handle);
+	
+}
 
-
-
+static json_t *load_json(const char*text, size_t buflen){
+	json_t *root;
+	json_error_t error;
+	root = json_loadb(text, buflen, 0, &error);
+	if(root){
+		return root;
+	}else{
+		fprintf(stderr, "json error on line %d: %s\n",error.line, error.text);
+		return (json_t*)0;
+	}
+}
 
 
 

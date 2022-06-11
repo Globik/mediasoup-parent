@@ -13,6 +13,7 @@ GMainLoop *loop;
 int a = 0;
 
 static gboolean writ(GIOChannel *gio, GIOCondition condition, gpointer data){
+	return TRUE;
 	a++;
 	
 	if(a > 3)return TRUE;
@@ -47,7 +48,7 @@ int c = 0;
 
 static gboolean red(GIOChannel *gio, GIOCondition condition, gpointer data){
 	
-	//if( c > 8) return TRUE;
+	if( c > 5) return TRUE;
 	c++;
 	GIOStatus ret;
 	GError *err = NULL;
@@ -84,7 +85,7 @@ gsize bytes_read;
 	}
 	//buf[sizeof(buf)]="\0";
 g_print(green "Some data to read in parent: %s\n" rst, buf);
-g_io_channel_flush(gio, NULL);
+//g_io_channel_flush(gio, NULL);
 }
 
 	return TRUE;
@@ -101,7 +102,7 @@ int main(int argc, char* argv[]){
 	
 	
 	
-	GSpawnFlags flags = G_SUBPROCESS_FLAGS_NONE;//mjiji
+	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_NONE;//mjiji
 	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_INHERIT_FDS;
 	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_INHERIT_FDS | G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDERR_PIPE;
 	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDIN_PIPE | G_SUBPROCESS_FLAGS_STDERR_PIPE;
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]){
 	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDIN_PIPE;
 	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_STDIN_PIPE;
 	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_INHERIT_FDS | G_SUBPROCESS_FLAGS_STDIN_PIPE;
-	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_INHERIT_FDS | G_SUBPROCESS_FLAGS_STDOUT_PIPE;
+	GSpawnFlags flags = G_SUBPROCESS_FLAGS_INHERIT_FDS | G_SUBPROCESS_FLAGS_STDOUT_PIPE;
 	//GSpawnFlags flags = G_SUBPROCESS_FLAGS_INHERIT_FDS | G_SUBPROCESS_FLAGS_STDERR_PIPE;// | G_SUBPROCESS_FLAGS_STDIN_PIPE;
 	
 	launcher = g_subprocess_launcher_new (flags);
@@ -133,7 +134,7 @@ int main(int argc, char* argv[]){
 	 GIOChannel *channel3 = g_io_channel_unix_new(3); if(!channel3) g_error("cannot create new giochannel\n");
 	 GIOChannel *channel4 = g_io_channel_unix_new(4); if(!channel4) g_error("cannot create new giochannel\n");
 	 
-	// GIOChannel *channel5 = g_io_channel_unix_new(5); if(!channel5) g_error("cannot create new giochannel\n");
+	GIOChannel *channel5 = g_io_channel_unix_new(5); if(!channel5) g_error("cannot create new giochannel\n");
 	 GIOChannel *channel6 = g_io_channel_unix_new(6); if(!channel6) g_error("cannot create new giochannel\n");
 	 /*
 	 if(!g_unix_set_fd_nonblocking(0, TRUE, &error)) g_error("failed non blockin 0 %s\n", error->message);
@@ -172,17 +173,17 @@ int main(int argc, char* argv[]){
 	g_subprocess_communicate_utf8(subprocess, NULL, NULL, &output2, &error2, &error);
 	g_print("error: %s\n", error2);
 	g_print("Data in communicate: %s\n", output2); 
-	/* 
-	if(!g_io_add_watch(channel0, G_IO_IN | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");//t
-	if(!g_io_add_watch(channel1, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
-	 if(!g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");
+	
+	//if(!g_io_add_watch(channel0, G_IO_IN | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");//t
+	//if(!g_io_add_watch(channel1, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
+	 //if(!g_io_add_watch(channel2, G_IO_IN | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");
 	 
-	if(!g_io_add_watch(channel3, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
-	 if(!g_io_add_watch(channel4, G_IO_IN | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");
+	//if(!g_io_add_watch(channel3, G_IO_IN | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
+	 if(!g_io_add_watch(channel4, G_IO_OUT | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");
 	 
-	if(!g_io_add_watch(channel5, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
-	 if(!g_io_add_watch(channel6, G_IO_OUT | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
-	 */
+	//if(!g_io_add_watch(channel5, G_IO_IN | G_IO_HUP, writ, NULL)) g_error("cannot add watch on giochannel\n");
+	 //if(!g_io_add_watch(channel6, G_IO_OUT | G_IO_HUP, red, NULL)) g_error("cannot add watch on giochannel\n");
+	 
 	loop = g_main_loop_new(NULL, FALSE);
 	g_main_loop_run(loop);
 	g_main_loop_unref(loop);

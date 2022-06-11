@@ -11,7 +11,7 @@ t: t.c
 f: f.c
 	gcc -o f f.c
 u: u.c
-	gcc -o u u.c `pkg-config --cflags --libs libuv`
+	gcc -o u u.c `pkg-config --cflags --libs libuv jansson`
 l: child2.c
 	gcc -o l child2.c `pkg-config --cflags --libs libuv`
 fi: fuck.c
@@ -22,3 +22,5 @@ re: re.c
 	gcc -o re re.c 
 hex: hex.c
 	gcc -o hex hex.c
+di: di.c
+	gcc -o di di.c
