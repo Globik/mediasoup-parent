@@ -219,12 +219,30 @@ if(!root){
 	fprintf(stderr, "error on line %d %s\n", error.line, error.text);
 }
     free(buf->base);
-    char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
+   // char * dura = "{\"id\":1,\"method\":\"worker.createRouter\",\"internal\":{\"routerId\":\"e2cee2ed-484e-4113-951f-61c0619ca6bd\"}}";
     //char*dura = "{\"nid\":\"f\"}";
     //uint8_t buffer[15]= { 0x0b ,0x00, 0x00, 0x00,  '{','"','n', 'i','d', '"',':','"','f','"','}' };
+    char *method_str;
+    method_str = strdup("worker.createRouter");
+    
+    json_auto_t * reply = json_object();
+    json_object_set_new(reply, "id", json_integer(1));
+    json_object_set_new(reply, "method", json_string(method_str));
+    
+    json_auto_t * intobj = json_object();
+    json_object_set_new(intobj, "routerId", json_string("1"));
+    
+    json_object_set_new(reply, "internal", intobj);
+    
+    char * our = json_dumps(reply, 0);
+    
+    printf("Data json %s\n", our);
+    
     uv_write_t *write_req;
 
-    size_t str_len = strlen(dura);
+    //size_t str_len = strlen(dura);
+    size_t str_len = strlen(our);
+    printf("str_len %ld\n", str_len);
     if(a == 2) return;
     size_t buf_len=str_len+sizeof(uint32_t);
     uint8_t * buffer=malloc(sizeof(buffer) *buf_len);
@@ -246,7 +264,7 @@ if(!root){
     buffer[3]=0x00;
     printf("************* BUFFER ********* %x\n", buffer[0]);
     for(int i=4; i < buf_len; i++) {
-        buffer[i]=dura[i-4];
+        buffer[i]=our[i-4];
     }
 
 
@@ -256,7 +274,8 @@ if(!root){
     r = uv_write(write_req, (uv_stream_t*)&pip3, &bufi, 1, after_write);
     if(r !=0)fprintf(stderr, "r uv write => %s\n", uv_strerror(r));
     free(buffer);
-
+    free(our);
+free(method_str);
     //uv_read_stop(tcp);
    
 }
