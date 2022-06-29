@@ -24,3 +24,5 @@ hex: hex.c
 	gcc -o hex hex.c
 di: di.c
 	gcc -o di di.c
+e: e.c
+	gcc -o e e.c `pkg-config --cflags --libs gstreamer-rtsp-server-1.0 gstreamer-1.0`
